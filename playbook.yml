@@ -1,0 +1,6 @@
+---
+- name: Deploy Modern Monitoring Stack
+  hosts: monitoring_servers
+  become: yes  # 强制使用 sudo/root 权限
+  roles:
+    - monitoring_stack

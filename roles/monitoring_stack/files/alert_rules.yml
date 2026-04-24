@@ -1,0 +1,30 @@
+groups:
+  - name: host_monitoring
+    rules:
+      - alert: HighCPUUsage
+        expr: system_cpu_usage_percent > 80
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Host High CPU usage detected"
+          description: "CPU usage is above 80% (current value: {{ $value }})"
+
+      - alert: ExporterDown
+        expr: up{job="custom-exporter"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Custom Exporter is down"
+
+
+     # --- 新增这条测试规则 ---
+      - alert: Watchdog
+        expr: vector(1) > 0  # 这是一个永远为真的表达式
+        for: 0m              # 立即报警，不等待
+        labels:
+          severity: none
+        annotations:
+          summary: "Alertmanager 工作测试"
+          description: "这是一个测试告警，如果你看到了它，说明 Alertmanager 正在正常接收信息。"

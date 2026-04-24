@@ -1,0 +1,28 @@
+global:
+  scrape_interval: 15s 
+  evaluation_interval: 15s
+
+# 关联告警规则文件
+rule_files:
+  - "alert_rules.yml"
+
+# 关联 Alertmanager
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ['alertmanager:9093']
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+  - job_name: 'custom-exporter'
+    static_configs:
+      # 这里使用的是 docker-compose 中的服务名，而不是 IP
+      - targets: ['custom-exporter:8000']
+    metrics_path: /

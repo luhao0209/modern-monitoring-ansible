@@ -1,0 +1,6 @@
+---
+# 所有的文件将被部署到这个目录
+install_root: /opt/modern-monitoring
+
+# 你的自定义 Exporter 的端口
+exporter_port: 8000

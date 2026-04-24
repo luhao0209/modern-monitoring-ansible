@@ -1,0 +1,74 @@
+---
+- name: Check if Docker is installed
+  command: docker --version
+  register: docker_check
+  ignore_errors: yes
+
+- name: Install Docker (One-liner convenience script for Ubuntu/Debian)
+  shell: "curl -fsSL https://get.docker.com | sh"
+  when: docker_check.rc != 0
+
+- name: Create project directories
+  file:
+    path: "{{ install_root }}/{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - prometheus
+    - alertmanager
+    - custom-exporter
+    - grafana
+
+# --- 文件搬运部分 ---
+
+# 这里假设你把之前的 .py 和 Dockerfile 放在了 Ansible 项目的 files/custom-exporter/ 目录下
+# 如果没有，你需要手动把那几个文件拷进去
+- name: Copy Custom Exporter source code
+  copy:
+    src: custom-exporter/
+    dest: "{{ install_root }}/custom-exporter/"
+    mode: '0755'
+
+- name: Copy Prometheus config
+  copy:
+    src: prometheus.yml
+    dest: "{{ install_root }}/prometheus/prometheus.yml"
+
+- name: Copy Alert rules
+  copy:
+    src: alert_rules.yml
+    dest: "{{ install_root }}/prometheus/alert_rules.yml"
+
+- name: Copy Alertmanager config
+  copy:
+    src: alertmanager.yml
+    dest: "{{ install_root }}/alertmanager/alertmanager.yml"
+
+# --- 关键的渲染步骤 ---
+
+- name: Generate docker-compose.yml from template
+  template:
+    src: docker-compose.yml.j2
+    dest: "{{ install_root }}/docker-compose.yml"
+
+# --- 解决 Grafana 权限痛点 ---
+
+- name: Fix Grafana directory permissions (chown 472)
+  file:
+    path: /var/lib/docker/volumes/{{ install_root | basename }}_grafana_data/_data
+    state: directory
+    owner: 472
+    group: 472
+    recurse: yes
+  # 注意：这个任务只有在卷已经存在时才有效，初次运行可能会被忽略，
+  # 也可以选择在容器启动前手动创建一个宿主机映射目录来赋权。
+  # 为简单起见，我们使用 Docker Compose 自动卷管理，
+  # 如果这里报错可以忽略，Grafana 启动失败一次后再次运行即可。
+  ignore_errors: yes
+
+# --- 启动服务 ---
+
+- name: Start services with Docker Compose
+  shell: docker compose up -d --build
+  args:
+    chdir: "{{ install_root }}"
