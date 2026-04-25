@@ -5,7 +5,7 @@
   ignore_errors: yes
 
 - name: Install Docker (One-liner convenience script for Ubuntu/Debian)
-  shell: "curl -fsSL https://get.docker.com | sh"
+  shell: shell: curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
   when: docker_check.rc != 0
 
 - name: Create project directories
