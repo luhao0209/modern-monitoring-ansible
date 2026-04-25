@@ -66,13 +66,16 @@
   # 如果这里报错可以忽略，Grafana 启动失败一次后再次运行即可。
   ignore_errors: yes
 
-- name: 配置国内 Docker 镜像加速器
+- name: 配置国内 Docker 镜像加速器 (多节点容灾)
   copy:
     dest: /etc/docker/daemon.json
     content: |
       {
         "registry-mirrors": [
-          "https://pjvizama.mirror.aliyuncs.com"
+          "https://docker.1panel.live",
+          "https://hub.rat.dev",
+          "https://docker.rainbond.cc",
+          "https://docker.m.daocloud.io"
         ]
       }
 
