@@ -1,9 +1,20 @@
 name: Deploy Modern Monitoring Stack
 
+# 触发条件配置
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
+  # 开启手动网页触发，并定义输入表单
+  workflow_dispatch:
+    inputs:
+      target_ip:
+        description: '👉 新服务器的公网 IP'
+        required: true
+        type: string
+      target_password:
+        description: '👉 新服务器的 root 密码 (系统会加密掩码)'
+        required: true
+        type: password
 
 jobs:
   deploy:
@@ -31,6 +42,15 @@ jobs:
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
+
+      - name: Install sshpass (免密工具)
+        run: sudo apt-get update && sudo apt-get install -y sshpass
+
+      - name: Generate Dynamic Inventory (根据网页输入生成配置)
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          echo "[monitoring_servers]" > inventory.ini
+          echo "server_1 ansible_host=${{ inputs.target_ip }} ansible_user=root ansible_ssh_pass=${{ inputs.target_password }}" >> inventory.ini
 
       - name: Run Ansible Playbook
         run: |
