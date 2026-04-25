@@ -72,9 +72,7 @@
     content: |
       {
         "registry-mirrors": [
-          "https://registry.cn-hangzhou.aliyuncs.com",
-          "https://docker.1panel.live",
-          "https://docker.m.daocloud.io"
+          "https://pjvizama.mirror.aliyuncs.com"
         ]
       }
 
