@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   prometheus:
-    image: docker.chenby.cn/prom/prometheus:latest
+    image: prom/prometheus:latest
     container_name: prometheus
     volumes:
       - {{ install_root }}/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
@@ -16,7 +16,7 @@ services:
     restart: unless-stopped
 
   alertmanager:
-    image: docker.chenby.cn/prom/alertmanager:latest
+    image: prom/alertmanager:latest
     container_name: alertmanager
     volumes:
       - {{ install_root }}/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
@@ -25,7 +25,7 @@ services:
     restart: unless-stopped
 
   grafana:
-    image: docker.chenby.cn/grafana/grafana:latest
+    image: grafana/grafana:latest
     container_name: grafana
     volumes:
       - grafana_data:/var/lib/grafana
@@ -34,7 +34,7 @@ services:
     restart: unless-stopped
 
   node-exporter:
-    image: docker.chenby.cn/prom/node-exporter:latest
+    image: prom/node-exporter:latest
     container_name: node-exporter
     volumes:
       - /proc:/host/proc:ro
