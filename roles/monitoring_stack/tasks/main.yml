@@ -66,6 +66,24 @@
   # 如果这里报错可以忽略，Grafana 启动失败一次后再次运行即可。
   ignore_errors: yes
 
+- name: 配置国内 Docker 镜像加速器
+  copy:
+    dest: /etc/docker/daemon.json
+    content: |
+      {
+        "registry-mirrors": [
+          "https://registry.cn-hangzhou.aliyuncs.com",
+          "https://docker.1panel.live",
+          "https://docker.m.daocloud.io"
+        ]
+      }
+
+- name: 重启 Docker 使加速器生效
+  systemd:
+    name: docker
+    state: restarted
+    daemon_reload: yes
+
 # --- 启动服务 ---
 
 - name: Start services with Docker Compose
