@@ -13,8 +13,16 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Install Ansible
-        run: pipx install "ansible==9.5.1"
+      # 关键解法：构建纯净的隔离环境，屏蔽 GitHub 预装工具的干扰
+      - name: Setup Clean Python Environment
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      # 在干净的环境中安装兼容版 Ansible，这次绝对不会被顶替
+      - name: Install Compatible Ansible
+        run: |
+          pip install "ansible==9.5.1"
 
       - name: Setup SSH Context
         env:
@@ -25,6 +33,6 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H 47.121.120.212 >> ~/.ssh/known_hosts
 
-      - name: Run Ansible Playbook Syntax Check
+      - name: Run Ansible Playbook
         run: |
           ansible-playbook -i inventory.ini playbook.yml
